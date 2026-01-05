@@ -10,5 +10,5 @@ dependencies = [
     "transformers",
     "tokenizers",
     "pillow",
-    "llama-cpp-python @ git+https://github.com/JamePeng/llama-cpp-python",
+    "llama-cpp-python @ git+https://github.com/JamePeng/llama-cpp-python@626a7ed33ae917d0517d7088c14a800d8f029e8f",
 ]

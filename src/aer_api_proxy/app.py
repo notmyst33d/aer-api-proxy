@@ -2,8 +2,6 @@
 # Copyright (C) 2026 Myst33d <myst33d@gmail.com>
 
 import re
-import os
-import subprocess
 import httpx
 import logging
 from contextlib import asynccontextmanager
@@ -13,65 +11,35 @@ from llama_cpp.llama_chat_format import Qwen3VLChatHandler
 
 from .captcha_solver import CaptchaSolver
 from .clip_classifier import CLIPClassifier
+from .models import (
+    ensure_models,
+    CLASSIFIER_MODEL,
+    CLASSIFIER_TOKENIZER,
+    LLM_MODEL,
+    LLM_MODEL_MMPROJ,
+)
 
 FAKE_USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0"
 )
-
-CLASSIFIER_MODEL = (
-    "classifier_model.onnx",
-    "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/main/onnx/model_q4.onnx",
-)
-CLASSIFIER_TOKENIZER = (
-    "classifier_tokenizer.json",
-    "https://huggingface.co/Xenova/clip-vit-base-patch32/resolve/main/tokenizer.json",
-)
-LLM_MODEL = (
-    "llm_model.gguf",
-    "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct-GGUF/resolve/main/Qwen3VL-2B-Instruct-Q4_K_M.gguf",
-)
-LLM_MODEL_MMPROJ = (
-    "llm_model_mmproj.gguf",
-    "https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct-GGUF/resolve/main/mmproj-Qwen3VL-2B-Instruct-Q8_0.gguf",
-)
-
-
-async def ensure_models():
-    if (
-        os.path.isfile(CLASSIFIER_MODEL[0])
-        and os.path.isfile(CLASSIFIER_TOKENIZER[0])
-        and os.path.isfile(LLM_MODEL[0])
-        and os.path.isfile(LLM_MODEL_MMPROJ[0])
-    ):
-        return
-
-    for file in [
-        CLASSIFIER_MODEL,
-        CLASSIFIER_TOKENIZER,
-        LLM_MODEL,
-        LLM_MODEL_MMPROJ,
-    ]:
-        if os.path.isfile(file[0]):
-            continue
-        subprocess.call(["curl", "-Lo", file[0], file[1]])
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     global captcha_solver
 
-    await ensure_models()
+    ensure_models()
 
     classifier = CLIPClassifier(
-        model_path=CLASSIFIER_MODEL[0],
-        tokenizer_path=CLASSIFIER_TOKENIZER[0],
+        model_path=CLASSIFIER_MODEL.path,
+        tokenizer_path=CLASSIFIER_TOKENIZER.path,
     )
     chat_handler = Qwen3VLChatHandler(
-        clip_model_path=LLM_MODEL_MMPROJ[0],
+        clip_model_path=LLM_MODEL_MMPROJ.path,
         verbose=False,
     )
     llm = Llama(
-        model_path=LLM_MODEL[0],
+        model_path=LLM_MODEL.path,
         chat_handler=chat_handler,
         use_mmap=False,
         verbose=False,
