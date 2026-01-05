@@ -1,0 +1,14 @@
+[project]
+name = "aer-api-proxy"
+version = "1.0.0"
+requires-python = "==3.13.*"
+dependencies = [
+    "httpx",
+    "fastapi[standard]",
+    "playwright",
+    "onnxruntime",
+    "transformers",
+    "tokenizers",
+    "pillow",
+    "llama-cpp-python @ git+https://github.com/JamePeng/llama-cpp-python",
+]
