@@ -94,7 +94,8 @@ class CaptchaSolver:
                 self._logger.debug("no more matching objects")
                 await _realistic_click(page, page.locator("#click-submit"))
                 async with page.expect_response(
-                    lambda r: r.url.find("gridClickVerify") != -1
+                    lambda r: r.url.find("gridClickVerify") != -1,
+                    timeout=3000,
                 ) as response_info:
                     response = await response_info.value
                     data = await response.json()
